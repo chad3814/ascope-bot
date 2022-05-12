@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 });
 app.use('/images', express.static('/ascope-bot/images'));
 app.use('/favicon.ico', (req, res) => {
-    res.sendFile('/ascope-bot/images/favicon.ico');
+  res.sendFile('/ascope-bot/images/favicon.ico');
 });
 app.post('/facepalm', async (req, res) => {
   res.end();
