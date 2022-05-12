@@ -1,17 +1,31 @@
-import path from 'path';
 import { fileURLToPath } from 'url';
+import path from 'path';
+import { readFileSync } from 'fs';
 
 import bodyJson from 'body/json.js';
 import express from 'express';
+import fetch from 'node-fetch';
 
-const app_id = 'A03F361J7HS';
-const client_id = '13914448644.3513205619604';
-const bot_token = process.env['BOT_TOKEN'];
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+const bot_token = readFileSync(path.join(dirname, 'slack_token.txt'), 'utf-8');
 
-const sendToSlack = (channel, text, extra) => {
-    const json = JSON.stringify({channel, text, ...extra});
-}
+const sendToSlack = async (channel, text, extra = {}) => {
+    const body = JSON.stringify({
+        channel,
+        text,
+        ...extra,
+    });
+    const resp = await fetch('https://slack.com/api/chat.postMessage', {
+        headers:{
+            'Authorization': `Bearer ${bot_token}`,
+            'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body,
+    });
+    const json = await resp.json();
+    console.log('sendToSlack', json);
+};
 
 const app = express();
 app.use((req, res, next) => {
@@ -19,6 +33,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use(express.static(dirname));
+
 app.post('/facepalm', (req, res) => {
     const blocks = [
       {
@@ -30,11 +45,20 @@ app.post('/facepalm', (req, res) => {
     ];
 
     res.set('Content-Type', 'application/json');
-    res.write(JSON.stringify({
+    res.end(JSON.stringify({
         response_type: 'in_channel',
         text: 'facepalm',
         blocks,
     }));
+});
+
+app.get('/wotd', async (req, res) => {
+    res.end('OK');
+    await sendToSlack('C02FSTKLP98', 'https://www.merriam-webster.com/word-of-the-day', {
+        username: 'Word of the Day',
+        unfurl_links: true,
+        icon_emoji: 'calendar',
+    });
 });
 
 const port = parseInt(process.argv[2], 10) || 80;
