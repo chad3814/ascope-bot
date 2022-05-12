@@ -20,7 +20,6 @@ app.use((req, res, next) => {
 });
 app.use(express.static(dirname));
 app.post('/facepalm', (req, res) => {
-    const channel_id = body.channel_id;
     const blocks = [
       {
         type: 'image',
