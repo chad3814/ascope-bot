@@ -43,8 +43,10 @@ app.use((req, res, next) => {
     console.log(req.method, req.url);
     next();
 });
-app.use(express.static(dirname));
-
+app.use('/images', express.static('/ascope-bot/images'));
+app.use('/favicon.ico', (req, res) => {
+    res.sendFile('/ascope-bot/images/favicon.ico');
+});
 app.post('/facepalm', async (req, res) => {
     res.end();
     const body = await bodyParser(req);
@@ -63,7 +65,7 @@ app.post('/facepalm', async (req, res) => {
     });
 });
 
-app.get('/wotd', async (req, res) => {
+app.post('/wotd', async (req, res) => {
     res.end('OK');
     await sendToSlack('C02FSTKLP98', 'https://www.merriam-webster.com/word-of-the-day', {
         username: 'Word of the Day',
